@@ -16,6 +16,11 @@ from typing import Dict, List, Optional
 class AbuseDetector:
     """Detects abusive content using sentiment analysis and keyword matching."""
     
+    # Configurable thresholds
+    SENTIMENT_THRESHOLD = -0.3  # Negative sentiment threshold
+    KEYWORD_WEIGHT = 0.4
+    ABUSE_SCORE_THRESHOLD = 0.4  # Minimum score to classify as abusive
+    
     def __init__(self):
         # List of abusive keywords/phrases (expandable)
         self.abusive_keywords = [
@@ -23,10 +28,6 @@ class AbuseDetector:
             'worthless', 'pathetic', 'disgusting', 'die', 'kys',
             'retard', 'moron', 'dumb', 'ugly', 'fat', 'nazi'
         ]
-        
-        # Severity thresholds
-        self.sentiment_threshold = -0.3  # Negative sentiment threshold
-        self.keyword_weight = 0.4
         
     def analyze_message(self, content: str) -> Dict:
         """
@@ -41,20 +42,22 @@ class AbuseDetector:
         blob = TextBlob(content)
         sentiment = blob.sentiment.polarity
         
-        # Keyword detection
-        detected_keywords = [
-            keyword for keyword in self.abusive_keywords 
-            if keyword in content_lower
-        ]
+        # Keyword detection with word boundary matching to avoid false positives
+        detected_keywords = []
+        for keyword in self.abusive_keywords:
+            # Use word boundaries to match whole words only
+            pattern = r'\b' + re.escape(keyword) + r'\b'
+            if re.search(pattern, content_lower):
+                detected_keywords.append(keyword)
         
         # Calculate abuse score
-        keyword_score = len(detected_keywords) * self.keyword_weight
+        keyword_score = len(detected_keywords) * self.KEYWORD_WEIGHT
         sentiment_score = abs(min(sentiment, 0))
         
         abuse_score = keyword_score + sentiment_score
         
         # Classification
-        is_abusive = abuse_score > 0.4 or sentiment < self.sentiment_threshold
+        is_abusive = abuse_score > self.ABUSE_SCORE_THRESHOLD or sentiment < self.SENTIMENT_THRESHOLD
         
         severity = "low"
         if abuse_score > 0.8:

@@ -173,11 +173,13 @@ self.abusive_keywords = [
 
 ### Adjusting Sensitivity
 
-Modify thresholds in the `AbuseDetector` class:
+Modify thresholds in the `AbuseDetector` class in `bot.py`:
 
 ```python
-self.sentiment_threshold = -0.3  # More negative = stricter
-self.keyword_weight = 0.4        # Higher = keywords matter more
+# Class-level constants at the top of AbuseDetector
+SENTIMENT_THRESHOLD = -0.3  # More negative = stricter
+KEYWORD_WEIGHT = 0.4        # Higher = keywords matter more
+ABUSE_SCORE_THRESHOLD = 0.4 # Minimum score to classify as abusive
 ```
 
 ## Security & Privacy
