@@ -1,5 +1,5 @@
 """
-Unit tests for Respect Ranger Discord Bot
+Unit tests for Guardify Discord Bot
 Tests the abuse detection and forensics logging functionality
 """
 

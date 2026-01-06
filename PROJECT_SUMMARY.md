@@ -1,7 +1,7 @@
-# Respect Ranger - Project Summary
+# Guardify - Project Summary
 
 ## Overview
-Respect Ranger is a fully-functional Python Discord bot that detects and logs abusive content in real-time using AI-powered sentiment analysis and keyword detection for digital abuse forensics.
+Guardify is a fully-functional Python Discord bot that detects and logs abusive content in real-time using AI-powered sentiment analysis and keyword detection for digital abuse forensics.
 
 ## Implementation Status: ✅ COMPLETE
 
@@ -27,7 +27,7 @@ Respect Ranger is a fully-functional Python Discord bot that detects and logs ab
 
 ### 📁 Project Structure
 ```
-respect-ranger-/
+Guardify/
 ├── bot.py                    # Main bot implementation (379 lines)
 ├── test_bot.py               # Comprehensive test suite (306 lines, 19 tests)
 ├── demo.py                   # Standalone demo (159 lines)
@@ -92,7 +92,7 @@ The bot is production-ready and can be deployed immediately:
 - Export reports (PDF, CSV, HTML)
 
 ## Conclusion
-The Respect Ranger bot fully satisfies the problem statement requirements:
+The Guardify bot fully satisfies the problem statement requirements:
 ✅ Python Discord bot implementation
 ✅ Sentiment/abuse detection using NLP
 ✅ Digital forensics evidence logging

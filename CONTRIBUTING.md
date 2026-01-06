@@ -1,6 +1,6 @@
-# Contributing to Respect Ranger
+# Contributing to Guardify
 
-Thank you for your interest in contributing to Respect Ranger! This document provides guidelines for contributing to the project.
+Thank you for your interest in contributing to Guardify! This document provides guidelines for contributing to the project.
 
 ## How to Contribute
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Dependency checker for Respect Ranger
+Dependency checker for Guardify
 Verifies all required dependencies are installed and properly configured
 """
 
@@ -18,7 +18,7 @@ def check_python_version():
         return True
     else:
         print(f"❌ Python {version.major}.{version.minor}.{version.micro} - FAILED")
-        print("   Respect Ranger requires Python 3.8 or higher")
+        print("   Guardify requires Python 3.8 or higher")
         return False
 
 

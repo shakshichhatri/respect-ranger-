@@ -1,10 +1,10 @@
-# Respect Ranger 🛡️
+# Guardify 🛡️
 
 AI-enabled Discord bot for social media forensics to detect and prevent digital abuse.
 
 ## Overview
 
-Respect Ranger is a Python-based Discord bot that uses sentiment analysis and keyword detection to identify abusive content in real-time. The bot automatically logs evidence for digital forensics, helping server moderators maintain a safe and respectful community environment.
+Guardify is a Python-based Discord bot that uses sentiment analysis and keyword detection to identify abusive content in real-time. The bot automatically logs evidence for digital forensics, helping server moderators maintain a safe and respectful community environment.
 
 ## Features
 
@@ -37,8 +37,8 @@ Respect Ranger is a Python-based Discord bot that uses sentiment analysis and ke
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/shakshichhatri/respect-ranger-.git
-   cd respect-ranger-
+   git clone https://github.com/shakshichhatri/Guardify.git
+   cd Guardify
    ```
 
 2. **Install dependencies**

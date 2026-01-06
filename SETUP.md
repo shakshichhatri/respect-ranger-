@@ -1,4 +1,4 @@
-# Quick Start Guide - Respect Ranger
+# Quick Start Guide - Guardify
 
 ## Step-by-Step Setup
 
@@ -24,7 +24,7 @@ python -m textblob.download_corpora
 ### 2. Discord Bot Configuration
 
 1. Visit the [Discord Developer Portal](https://discord.com/developers/applications)
-2. Click "New Application" and name it "Respect Ranger"
+2. Click "New Application" and name it "Guardify"
 3. Navigate to the "Bot" section
 4. Click "Add Bot"
 5. Under "Privileged Gateway Intents", enable:
@@ -78,7 +78,7 @@ python bot.py
 
 You should see:
 ```
-RespectRanger#1234 has connected to Discord!
+Guardify#1234 has connected to Discord!
 Bot is active in 1 guilds
 ```
 
@@ -181,4 +181,4 @@ Each line contains a JSON object with full evidence details.
 ## Support
 
 For issues or questions, please open an issue on GitHub:
-https://github.com/shakshichhatri/respect-ranger-/issues
+https://github.com/shakshichhatri/Guardify/issues

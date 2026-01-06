@@ -10,7 +10,7 @@ import json
 def demo_abuse_detection():
     """Demonstrate the abuse detection capabilities."""
     print("=" * 60)
-    print("RESPECT RANGER - ABUSE DETECTION DEMO")
+    print("GUARDIFY - ABUSE DETECTION DEMO")
     print("=" * 60)
     print()
     

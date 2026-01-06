@@ -1,5 +1,5 @@
 """
-Example usage scenarios for Respect Ranger Discord Bot
+Example usage scenarios for Guardify Discord Bot
 Demonstrates various use cases and API interactions
 """
 
