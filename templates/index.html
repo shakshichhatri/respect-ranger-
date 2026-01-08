@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardify - Discord Moderation Bot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .hero {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .hero h1 {
+            font-size: 3.5em;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .hero .subtitle {
+            font-size: 1.5em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .feature-card .icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 20px 40px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 3px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .stats-preview {
+            background: rgba(255,255,255,0.95);
+            padding: 40px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            text-align: center;
+        }
+
+        .stat-item .number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+
+        .stat-item .label {
+            color: #666;
+            font-size: 1.1em;
+            margin-top: 5px;
+        }
+
+        .commands-preview {
+            background: rgba(255,255,255,0.95);
+            padding: 40px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .commands-preview h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .command-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .command-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+
+        .command-item code {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .command-item .description {
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 30px;
+            font-size: 1.1em;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5em;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>🛡️ Guardify</h1>
+            <p class="subtitle">Advanced Discord Moderation Bot</p>
+            <p style="color: #666; font-size: 1.1em; max-width: 600px; margin: 0 auto;">
+                Protect your Discord community with AI-powered abuse detection, 
+                automated moderation, and beautiful analytics.
+            </p>
+            
+            <div class="cta-buttons">
+                <a href="https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&scope=bot&permissions=1099780063238" class="btn btn-primary pulse">
+                    Add to Discord
+                </a>
+                <a href="/dashboard.html" class="btn btn-secondary">
+                    View Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="icon">🛡️</div>
+                <h3>Advanced Moderation</h3>
+                <p>Warn, kick, ban, timeout, and purge - complete moderation toolkit</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="icon">🤖</div>
+                <h3>AI Detection</h3>
+                <p>Smart abuse detection with sentiment analysis and spam prevention</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="icon">📊</div>
+                <h3>Analytics</h3>
+                <p>Beautiful web dashboard with real-time statistics and insights</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="icon">⚡</div>
+                <h3>Auto-Moderation</h3>
+                <p>Automatically delete abuse and issue warnings without manual review</p>
+            </div>
+        </div>
+
+        <div class="stats-preview">
+            <h2 style="text-align: center; color: #667eea; margin-bottom: 30px; font-size: 2em;">
+                Trusted by Communities
+            </h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="number">10K+</span>
+                    <span class="label">Messages Protected</span>
+                </div>
+                <div class="stat-item">
+                    <span class="number">500+</span>
+                    <span class="label">Servers</span>
+                </div>
+                <div class="stat-item">
+                    <span class="number">99.9%</span>
+                    <span class="label">Uptime</span>
+                </div>
+                <div class="stat-item">
+                    <span class="number">24/7</span>
+                    <span class="label">Protection</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="commands-preview">
+            <h2>🎯 Powerful Commands</h2>
+            <div class="command-list">
+                <div class="command-item">
+                    <code>/warn</code>
+                    <p class="description">Issue warnings with automatic escalation</p>
+                </div>
+                <div class="command-item">
+                    <code>/kick</code>
+                    <p class="description">Remove users from your server</p>
+                </div>
+                <div class="command-item">
+                    <code>/ban</code>
+                    <p class="description">Permanently ban users</p>
+                </div>
+                <div class="command-item">
+                    <code>/timeout</code>
+                    <p class="description">Temporarily mute users</p>
+                </div>
+                <div class="command-item">
+                    <code>/purge</code>
+                    <p class="description">Bulk delete messages</p>
+                </div>
+                <div class="command-item">
+                    <code>/automod</code>
+                    <p class="description">Enable automatic moderation</p>
+                </div>
+                <div class="command-item">
+                    <code>/history</code>
+                    <p class="description">View user abuse history</p>
+                </div>
+                <div class="command-item">
+                    <code>/stats</code>
+                    <p class="description">Server moderation statistics</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero">
+            <h2 style="color: #667eea; margin-bottom: 20px;">Ready to Protect Your Community?</h2>
+            <p style="color: #666; margin-bottom: 30px; font-size: 1.1em;">
+                Join thousands of servers using Guardify for safer, friendlier Discord communities
+            </p>
+            <a href="https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&scope=bot&permissions=1099780063238" class="btn btn-primary">
+                Add Guardify to Your Server
+            </a>
+        </div>
+
+        <div class="footer">
+            <p>🛡️ Guardify - Advanced Discord Moderation Bot</p>
+            <p>Powered by AI • Real-time Protection • Beautiful Analytics</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                © 2026 Guardify • Made with ❤️ for Discord communities
+            </p>
+        </div>
+    </div>
+</body>
+</html>
