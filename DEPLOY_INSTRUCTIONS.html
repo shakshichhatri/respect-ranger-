@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Guardify Bot - Deploy to Render.com</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; line-height: 1.6; }
+        h1 { color: #4A90E2; }
+        h2 { color: #333; margin-top: 30px; }
+        .step { background: #f5f5f5; padding: 15px; margin: 15px 0; border-left: 4px solid #4A90E2; }
+        .command { background: #2d2d2d; color: #f8f8f8; padding: 10px; margin: 10px 0; border-radius: 4px; font-family: monospace; }
+        .button { display: inline-block; background: #4A90E2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin: 10px 5px; }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; margin: 10px 0; }
+        .success { background: #d4edda; border-left: 4px solid #28a745; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Deploy Guardify Bot to Render.com</h1>
+    <p><strong>Make your bot online 24/7 for FREE!</strong></p>
+
+    <div class="success">
+        ✅ Your code is ready at: <strong>https://github.com/shakshichhatri/Guardify</strong>
+    </div>
+
+    <h2>Step 1: Sign Up (1 minute)</h2>
+    <div class="step">
+        <p>1. Click this button to open Render.com:</p>
+        <a href="https://render.com" class="button" target="_blank">Open Render.com</a>
+        <p>2. Click <strong>"Get Started for Free"</strong></p>
+        <p>3. Click <strong>"GitHub"</strong> to sign in with your GitHub account</p>
+        <p>4. Click <strong>"Authorize Render"</strong> when GitHub asks for permissions</p>
+    </div>
+
+    <h2>Step 2: Create Web Service (2 minutes)</h2>
+    <div class="step">
+        <p>1. Once logged in, click the <strong>"New +"</strong> button (top right)</p>
+        <p>2. Select <strong>"Web Service"</strong></p>
+        <p>3. Find <strong>"Guardify"</strong> in your repositories list</p>
+        <p>4. Click <strong>"Connect"</strong> next to Guardify</p>
+    </div>
+
+    <h2>Step 3: Configure Service</h2>
+    <div class="step">
+        <p>Fill in these exact values:</p>
+        
+        <p><strong>Name:</strong></p>
+        <div class="command">guardify-bot</div>
+        
+        <p><strong>Environment:</strong> Select <strong>Python 3</strong></p>
+        
+        <p><strong>Build Command:</strong> (copy and paste this)</p>
+        <div class="command">pip install -r requirements.txt && python -m textblob.download_corpora</div>
+        
+        <p><strong>Start Command:</strong> (copy and paste this)</p>
+        <div class="command">python bot.py</div>
+    </div>
+
+    <h2>Step 4: Add Bot Token</h2>
+    <div class="step">
+        <p>Scroll down to <strong>"Environment Variables"</strong> section:</p>
+        <p>1. Click <strong>"Add Environment Variable"</strong></p>
+        <p>2. In <strong>Key</strong> field, enter:</p>
+        <div class="command">DISCORD_BOT_TOKEN</div>
+        <p>3. In <strong>Value</strong> field, paste your Discord bot token</p>
+        
+        <div class="warning">
+            <strong>⚠️ Don't have your bot token?</strong><br>
+            1. Go to <a href="https://discord.com/developers/applications" target="_blank">Discord Developer Portal</a><br>
+            2. Select your application<br>
+            3. Go to "Bot" section<br>
+            4. Click "Reset Token" and copy the new token<br>
+            5. <strong>IMPORTANT:</strong> Enable "Message Content Intent" toggle!
+        </div>
+    </div>
+
+    <h2>Step 5: Deploy!</h2>
+    <div class="step">
+        <p>1. Scroll down to <strong>"Instance Type"</strong></p>
+        <p>2. Select <strong>"Free"</strong> (very important!)</p>
+        <p>3. Click <strong>"Create Web Service"</strong></p>
+        <p>4. Wait 2-3 minutes and watch the logs</p>
+    </div>
+
+    <h2>✅ Success!</h2>
+    <div class="success">
+        <p>When you see this in the logs:</p>
+        <div class="command">Guardify#2225 has connected to Discord!<br>Bot is active in 2 guilds</div>
+        <p><strong>Your bot is online 24/7! 🎉</strong></p>
+        <p>It will stay online even when your PC is off!</p>
+    </div>
+
+    <h2>🔧 Troubleshooting</h2>
+    <div class="step">
+        <p><strong>Build Failed?</strong></p>
+        <ul>
+            <li>Check that Build Command is correct</li>
+            <li>Verify requirements.txt exists in your repo</li>
+        </ul>
+        
+        <p><strong>Bot Won't Start?</strong></p>
+        <ul>
+            <li>Verify DISCORD_BOT_TOKEN is set correctly</li>
+            <li>Check "Message Content Intent" is enabled in Discord Developer Portal</li>
+            <li>Make sure bot token wasn't regenerated</li>
+        </ul>
+        
+        <p><strong>Bot Goes Offline After 15 Minutes?</strong></p>
+        <ul>
+            <li>This is normal for free tier - bot will restart when needed</li>
+            <li>For true 24/7, upgrade to paid plan ($7/month)</li>
+        </ul>
+    </div>
+
+    <h2>📚 Useful Links</h2>
+    <div class="step">
+        <a href="https://render.com" class="button" target="_blank">Render.com</a>
+        <a href="https://discord.com/developers/applications" class="button" target="_blank">Discord Developer Portal</a>
+        <a href="https://github.com/shakshichhatri/Guardify" class="button" target="_blank">Your GitHub Repo</a>
+    </div>
+
+    <hr style="margin: 40px 0;">
+    <p style="text-align: center; color: #666;">
+        Once deployed, your bot will automatically update whenever you push to GitHub!<br>
+        Good luck! 🚀
+    </p>
+</body>
+</html>
