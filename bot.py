@@ -185,25 +185,176 @@ class RespectRanger(commands.Bot):
         self.abuse_detector = AbuseDetector()
         self.forensics_logger = ForensicsLogger()
         
+        # Auto-mod settings
+        self.spam_threshold = 5  # messages per 10 seconds
+        self.caps_threshold = 0.7  # 70% caps in message
+        self.user_messages = {}  # Track message timestamps for spam detection
+    
     async def on_ready(self):
         """Called when the bot is ready."""
         print(f'{self.user} has connected to Discord!')
         print(f'Bot is active in {len(self.guilds)} guilds')
+        print(f'Auto-moderation enabled: Abuse detection, spam filter, caps filter')
+    
+    def check_spam(self, user_id: int) -> bool:
+        """Check if user is spamming."""
+        now = datetime.utcnow()
+        if user_id not in self.user_messages:
+            self.user_messages[user_id] = []
+        
+        # Clean old messages (older than 10 seconds)
+        self.user_messages[user_id] = [
+            msg_time for msg_time in self.user_messages[user_id]
+            if (now - msg_time).total_seconds() < 10
+        ]
+        
+        # Add current message
+        self.user_messages[user_id].append(now)
+        
+        # Check if spam (more than threshold messages in 10 seconds)
+        return len(self.user_messages[user_id]) > self.spam_threshold
+    
+    def check_excessive_caps(self, content: str) -> bool:
+        """Check if message has excessive caps."""
+        if len(content) < 10:
+            return False
+        letters = [c for c in content if c.isalpha()]
+        if not letters:
+            return False
+        caps_ratio = sum(1 for c in letters if c.isupper()) / len(letters)
+        return caps_ratio > self.caps_threshold
         
     async def on_message(self, message: discord.Message):
-        """Process every message for abuse detection."""
+        """Process every message for abuse detection and auto-moderation."""
         # Ignore bot's own messages
         if message.author == self.user:
             return
         
-        # Analyze message
+        # Ignore DMs
+        if not message.guild:
+            return
+        
+        # Ignore messages from admins/moderators
+        if message.author.guild_permissions.administrator or message.author.guild_permissions.manage_messages:
+            await self.process_commands(message)
+            return
+        
+        # Check for spam
+        if self.check_spam(message.author.id):
+            try:
+                await message.delete()
+                embed = discord.Embed(
+                    title="🚫 Spam Detected",
+                    description=f"{message.author.mention}, please slow down! Don't spam messages.",
+                    color=discord.Color.red()
+                )
+                warning_msg = await message.channel.send(embed=embed)
+                await warning_msg.delete(delay=5)
+                
+                # Timeout for 2 minutes for spamming
+                await message.author.timeout(timedelta(minutes=2), reason="Auto-mod: Spamming")
+                return
+            except:
+                pass
+        
+        # Check for excessive caps
+        if self.check_excessive_caps(message.content):
+            try:
+                await message.delete()
+                embed = discord.Embed(
+                    title="🔠 Excessive Caps",
+                    description=f"{message.author.mention}, please don't use excessive CAPS LOCK.",
+                    color=discord.Color.orange()
+                )
+                warning_msg = await message.channel.send(embed=embed)
+                await warning_msg.delete(delay=5)
+                return
+            except:
+                pass
+        
+        # Analyze message for abusive content
         analysis = self.abuse_detector.analyze_message(message.content)
         
-        # Log if abusive
+        # Auto-moderation for abusive content
         if analysis['is_abusive']:
             self.forensics_logger.log_evidence(message, analysis)
             print(f"[ABUSE DETECTED] {message.author}: {message.content[:50]}... "
                   f"(Score: {analysis['abuse_score']}, Severity: {analysis['severity']})")
+            
+            try:
+                # Delete the abusive message
+                await message.delete()
+                
+                # Load warnings
+                warnings_file = os.path.join(self.forensics_logger.log_dir, "warnings.json")
+                warnings = {}
+                if os.path.exists(warnings_file):
+                    with open(warnings_file, 'r') as f:
+                        warnings = json.load(f)
+                
+                # Add automatic warning
+                user_id = str(message.author.id)
+                if user_id not in warnings:
+                    warnings[user_id] = []
+                
+                warnings[user_id].append({
+                    "warned_by": "AUTO-MOD",
+                    "warned_by_name": "Guardify Auto-Moderation",
+                    "reason": f"Abusive language detected ({analysis['severity']} severity)",
+                    "message_content": message.content[:100],
+                    "timestamp": datetime.utcnow().isoformat()
+                })
+                
+                # Save warnings
+                with open(warnings_file, 'w') as f:
+                    json.dump(warnings, f, indent=2)
+                
+                warning_count = len(warnings[user_id])
+                
+                # Send warning message in channel
+                embed = discord.Embed(
+                    title="⚠️ Abusive Content Detected",
+                    description=f"{message.author.mention}, your message was removed for violating community guidelines.",
+                    color=discord.Color.orange()
+                )
+                embed.add_field(name="Reason", value=f"Abusive language ({analysis['severity']} severity)", inline=False)
+                embed.add_field(name="Total Warnings", value=f"{warning_count}/5", inline=True)
+                
+                # Auto-timeout after 5 warnings
+                if warning_count >= 5:
+                    try:
+                        await message.author.timeout(timedelta(minutes=10), reason="Auto-mod: 5 warnings reached")
+                        embed.add_field(name="Action Taken", value="🔇 Timed out for 10 minutes (5 warnings)", inline=False)
+                        embed.color = discord.Color.red()
+                    except discord.Forbidden:
+                        embed.add_field(name="Note", value="⚠️ Unable to timeout user (insufficient permissions)", inline=False)
+                else:
+                    embed.add_field(name="Warning", value=f"You will be timed out after 5 warnings ({5-warning_count} remaining)", inline=False)
+                
+                warning_msg = await message.channel.send(embed=embed)
+                # Delete warning message after 10 seconds
+                await warning_msg.delete(delay=10)
+                
+                # Try to DM the user
+                try:
+                    dm_embed = discord.Embed(
+                        title="⚠️ Community Guidelines Violation",
+                        description=f"Your message in {message.guild.name} was removed.",
+                        color=discord.Color.red()
+                    )
+                    dm_embed.add_field(name="Message", value=message.content[:500], inline=False)
+                    dm_embed.add_field(name="Reason", value=f"Abusive language detected", inline=False)
+                    dm_embed.add_field(name="Warnings", value=f"{warning_count}/5", inline=False)
+                    if warning_count >= 5:
+                        dm_embed.add_field(name="Action", value="Timed out for 10 minutes", inline=False)
+                    await message.author.send(embed=dm_embed)
+                except:
+                    pass  # User has DMs disabled
+                    
+            except discord.Forbidden:
+                print(f"[ERROR] Cannot delete message or timeout user - missing permissions")
+            except Exception as e:
+                print(f"[ERROR] Auto-mod failed: {e}")
         
         # Process commands
         await self.process_commands(message)
@@ -477,6 +628,70 @@ async def warn(ctx, member: discord.Member, *, reason: str = "No reason provided
         pass
 
 
+@bot.command(name='automod')
+@commands.has_permissions(administrator=True)
+async def automod_settings(ctx, setting: str = None, value: str = None):
+    """
+    View or configure auto-moderation settings.
+    Usage: !automod [setting] [value]
+    Settings: spam_threshold, caps_threshold
+    """
+    if setting is None:
+        embed = discord.Embed(
+            title="🛡️ Auto-Moderation Settings",
+            description="Current auto-moderation configuration",
+            color=discord.Color.blue()
+        )
+        embed.add_field(name="Spam Threshold", value=f"{bot.spam_threshold} messages per 10 seconds", inline=False)
+        embed.add_field(name="Caps Threshold", value=f"{int(bot.caps_threshold * 100)}% caps in message", inline=False)
+        embed.add_field(name="Auto-Delete", value="✅ Enabled for abusive content, spam, excessive caps", inline=False)
+        embed.add_field(name="Auto-Warn", value="✅ Enabled for abusive content", inline=False)
+        embed.add_field(name="Auto-Timeout", value="✅ After 5 warnings (10 minutes) or spam (2 minutes)", inline=False)
+        embed.set_footer(text="Use !automod <setting> <value> to change")
+        await ctx.send(embed=embed)
+    else:
+        if setting == "spam_threshold" and value:
+            try:
+                bot.spam_threshold = int(value)
+                await ctx.send(f"✅ Spam threshold set to {value} messages per 10 seconds")
+            except:
+                await ctx.send("❌ Invalid value. Use a number (e.g., !automod spam_threshold 5)")
+        elif setting == "caps_threshold" and value:
+            try:
+                bot.caps_threshold = int(value) / 100
+                await ctx.send(f"✅ Caps threshold set to {value}%")
+            except:
+                await ctx.send("❌ Invalid value. Use a percentage (e.g., !automod caps_threshold 70)")
+        else:
+            await ctx.send("❌ Unknown setting. Available: spam_threshold, caps_threshold")
+
+
+@bot.command(name='clearwarnings')
+@commands.has_permissions(administrator=True)
+async def clear_warnings(ctx, member: discord.Member):
+    """
+    Clear all warnings for a member.
+    Usage: !clearwarnings @user
+    """
+    warnings_file = os.path.join(bot.forensics_logger.log_dir, "warnings.json")
+    
+    if not os.path.exists(warnings_file):
+        await ctx.send(f"{member.mention} has no warnings to clear.")
+        return
+    
+    with open(warnings_file, 'r') as f:
+        warnings_data = json.load(f)
+    
+    user_id = str(member.id)
+    if user_id in warnings_data:
+        del warnings_data[user_id]
+        with open(warnings_file, 'w') as f:
+            json.dump(warnings_data, f, indent=2)
+        await ctx.send(f"✅ Cleared all warnings for {member.mention}")
+    else:
+        await ctx.send(f"{member.mention} has no warnings to clear.")
+
+
 @bot.command(name='warnings')
 @commands.has_permissions(manage_messages=True)
 async def warnings(ctx, member: discord.Member):
@@ -644,13 +859,13 @@ async def help_command(ctx):
     """
     embed = discord.Embed(
         title="Guardify - Help",
-        description="AI-enabled Discord bot for detecting and preventing digital abuse",
+        description="AI-enabled Discord bot with advanced auto-moderation",
         color=discord.Color.purple()
     )
     
     embed.add_field(
-        name="🤖 Automatic Detection",
-        value="The bot automatically monitors all messages for abusive content and logs evidence.",
+        name="🤖 Auto-Moderation (Always Active)",
+        value="✅ **Abusive Language** - Auto-delete & warn\n✅ **Spam Detection** - Auto-timeout 2min\n✅ **Excessive Caps** - Auto-delete message\n✅ **5 Warnings = 10min Timeout**",
         inline=False
     )
     
@@ -668,13 +883,19 @@ async def help_command(ctx):
     
     embed.add_field(
         name="⚠️ Warnings",
-        value="`!warn @user [reason]` - Warn member\n`!warnings @user` - Check warnings",
+        value="`!warn @user [reason]` - Warn member\n`!warnings @user` - Check warnings\n`!clearwarnings @user` - Clear all warnings (Admin)",
         inline=False
     )
     
     embed.add_field(
         name="🧹 Channel Management",
         value="`!clear [amount]` - Delete messages\n`!slowmode <sec>` - Set slowmode\n`!lock` - Lock channel\n`!unlock` - Unlock channel",
+        inline=False
+    )
+    
+    embed.add_field(
+        name="⚙️ Settings",
+        value="`!automod` - View auto-mod settings\n`!automod <setting> <value>` - Change settings (Admin)",
         inline=False
     )
     
