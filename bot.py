@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from textblob import TextBlob
 import re
 from typing import Dict, List, Optional
@@ -386,7 +386,6 @@ async def timeout(ctx, member: discord.Member, duration: int, *, reason: str = "
     Usage: !timeout @user <minutes> [reason]
     """
     try:
-        from datetime import timedelta
         await member.timeout(timedelta(minutes=duration), reason=f"{reason} | Timeout by {ctx.author}")
         embed = discord.Embed(
             title="Member Timed Out",
